@@ -10,6 +10,8 @@ import torch
 import torch.optim as optim
 import numpy as np
 
+from Attack import *
+
 
 class DeepSVDDTrainer(BaseTrainer):
 
@@ -135,10 +137,10 @@ class DeepSVDDTrainer(BaseTrainer):
                 no_adv_scores=self.getScore(net,inputs)
 
                 if attack_type=='fgsm':
-                    adv_delta=fgsm(net,inputs,epsilon=epsilon,self.objective,self.R,self.c)
+                    adv_delta=pgd(net,inputs,epsilon=1.25*epsilon,attack_iters=1,restart=1, norm="l_inf",objective=self.objective,R=self.R,c=self.c)
                 
                 if attack_type=='pgd':
-                    adv_delta=pgd(net, inputs, epsilon=epsilon,alpha=alpha, 10,self.objective,self.R,self.c)
+                    adv_delta=pgd(net, inputs, epsilon=epsilon,alpha=alpha,attack_iters= 10,restarts=1, norm="l_inf",objective=self.objective,R=self.R,c=self.c)
                 
                 inputs = inputs+adv_delta if labels==0 else inputs-adv_delta
 
