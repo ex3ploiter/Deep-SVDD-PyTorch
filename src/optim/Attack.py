@@ -62,8 +62,8 @@ def attack_pgd(model, X, epsilon=8/255, alpha=2/255, attack_iters=10, restarts=1
     return max_delta.detach()
 
 
-def getScore(net,inputs,c=None,objective=None,R=None):
-    outputs = net(inputs)
+def getScore(net,inputs,delta,c=None,objective=None,R=None):
+    outputs = net(inputs+delta)
     dist = torch.sum((outputs - c) ** 2, dim=1)
     if objective == 'soft-boundary':
         scores = dist - R ** 2
