@@ -134,33 +134,33 @@ class DeepSVDDTrainer(BaseTrainer):
         start_time = time.time()
         idx_label_score = []
         net.eval()
-        with torch.no_grad():
-            # for data in test_loader:
-            for (data) in (tqdm(test_loader, desc='Testing Adversarial')):
-                inputs, labels, idx = data
-                inputs = inputs.to(self.device)
+        # with torch.no_grad():
+        # for data in test_loader:
+        for (data) in (tqdm(test_loader, desc='Testing Adversarial')):
+            inputs, labels, idx = data
+            inputs = inputs.to(self.device)
 
-                no_adv_scores=self.getScore(net,inputs)
+            no_adv_scores=self.getScore(net,inputs)
 
-                if attack_type=='fgsm':
-                    adv_delta=attack_pgd(net,inputs,epsilon=1.25*epsilon,attack_iters=1,restarts=1, norm="l_inf",objective=self.objective,R=self.R,c=self.c)
-                
-                if attack_type=='pgd':
-                    adv_delta=attack_pgd(net, inputs, epsilon=epsilon,alpha=alpha,attack_iters= 10,restarts=1, norm="l_inf",objective=self.objective,R=self.R,c=self.c)
-                
-                inputs = inputs+adv_delta if labels==0 else inputs-adv_delta
+            if attack_type=='fgsm':
+                adv_delta=attack_pgd(net,inputs,epsilon=1.25*epsilon,attack_iters=1,restarts=1, norm="l_inf",objective=self.objective,R=self.R,c=self.c)
+            
+            if attack_type=='pgd':
+                adv_delta=attack_pgd(net, inputs, epsilon=epsilon,alpha=alpha,attack_iters= 10,restarts=1, norm="l_inf",objective=self.objective,R=self.R,c=self.c)
+            
+            inputs = inputs+adv_delta if labels==0 else inputs-adv_delta
 
-                adv_scores=self.getScore(net,inputs)
-                
+            adv_scores=self.getScore(net,inputs)
+            
 
-                # Save triples of (idx, label, score) in a list
-                idx_label_score += list(zip(idx.cpu().data.numpy().tolist(),
-                                            labels.cpu().data.numpy().tolist(),
-                                            no_adv_scores.cpu().data.numpy().tolist()),
-                                            adv_scores.cpu().data.numpy().tolist()
-                                            )
+            # Save triples of (idx, label, score) in a list
+            idx_label_score += list(zip(idx.cpu().data.numpy().tolist(),
+                                        labels.cpu().data.numpy().tolist(),
+                                        no_adv_scores.cpu().data.numpy().tolist()),
+                                        adv_scores.cpu().data.numpy().tolist()
+                                        )
 
-  
+
 
 
         self.test_time = time.time() - start_time
