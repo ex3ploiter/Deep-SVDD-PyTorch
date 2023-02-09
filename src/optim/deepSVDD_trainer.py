@@ -12,6 +12,8 @@ import numpy as np
 
 from .Attack import *
 
+from tqdm import tqdm
+
 
 class DeepSVDDTrainer(BaseTrainer):
 
@@ -133,7 +135,8 @@ class DeepSVDDTrainer(BaseTrainer):
         idx_label_score = []
         net.eval()
         with torch.no_grad():
-            for data in test_loader:
+            # for data in test_loader:
+                for (data) in (tqdm(test_loader, desc='Testing Adversarial')):
                 inputs, labels, idx = data
                 inputs = inputs.to(self.device)
 
