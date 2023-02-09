@@ -8,6 +8,7 @@ import time
 import torch
 import torch.optim as optim
 import numpy as np
+from tqdm import tqdm
 
 
 class AETrainer(BaseTrainer):
@@ -46,7 +47,9 @@ class AETrainer(BaseTrainer):
             loss_epoch = 0.0
             n_batches = 0
             epoch_start_time = time.time()
-            for data in train_loader:
+            # for data in train_loader:
+            for (data) in (tqdm(train_loader, desc='Training AE')):        
+                
                 inputs, _, _ = data
                 inputs = inputs.to(self.device)
 
@@ -91,7 +94,9 @@ class AETrainer(BaseTrainer):
         idx_label_score = []
         ae_net.eval()
         with torch.no_grad():
-            for data in test_loader:
+            # for data in test_loader:
+            for (data) in (tqdm(test_loader, desc='Testing AE')):        
+                
                 inputs, labels, idx = data
                 inputs = inputs.to(self.device)
                 outputs = ae_net(inputs)

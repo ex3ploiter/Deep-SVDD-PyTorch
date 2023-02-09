@@ -80,7 +80,9 @@ class DeepSVDDTrainer(BaseTrainer):
             loss_epoch = 0.0
             n_batches = 0
             epoch_start_time = time.time()
-            for data in train_loader:
+            # for data in train_loader:
+            for (data) in (tqdm(train_loader, desc='Training')):
+                                
                 inputs, _, _ = data
                 inputs = inputs.to(self.device)
 
