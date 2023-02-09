@@ -9,6 +9,8 @@ from utils.visualization.plot_images_grid import plot_images_grid
 from deepSVDD import DeepSVDD
 from datasets.main import load_dataset
 
+import os 
+import pandas as pd 
 
 ################################################################################
 # Settings
@@ -165,37 +167,50 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
                     device=device,
                     n_jobs_dataloader=n_jobs_dataloader)
 
+
+    mine_result = {}
+    mine_result['Attack_Type'] = []
+    mine_result['Attack_Target'] = []
+    mine_result['ADV_AUC'] = []
+    
     # Test model
-    deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='fgsm',epsilon=8/255,alpha=1e-2)
+    deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='fgsm',epsilon=cfg.settings['eps'],alpha=cfg.settings['alpha'])
     clear_auc=deep_SVDD.results['clear_auc']
     normal_auc=deep_SVDD.results['normal_auc']
     anomal_auc=deep_SVDD.results['anomal_auc']
     both_auc=deep_SVDD.results['both_auc']
     
-    print(f'Adv Adverserial Clean: {clear_auc}')
-    print(f'Adv Adverserial Normal: {normal_auc}')
-    print(f'Adv Adverserial Anomal: {anomal_auc}')
-    print(f'Adv Adverserial Both: {both_auc}\n\n')
+    print(f'FGSM Adv Adverserial Clean: {clear_auc}')
+    print(f'FGSM Adv Adverserial Normal: {normal_auc}')
+    print(f'FGSM Adv Adverserial Anomal: {anomal_auc}')
+    print(f'FGSM Adv Adverserial Both: {both_auc}\n\n')
+    
+    mine_result['Attack_Type'].extend(['fgsm','fgsm','fgsm','fgsm'])
+    mine_result['Attack_Target'].extend(['clean','normal','anomal','both'])
+    mine_result['ADV_AUC'].extend([clear_auc,normal_auc,anomal_auc,both_auc])        
 
-    # Plot most anomalous and most normal (within-class) test samples
-    # indices, labels, scores = zip(*deep_SVDD.results['test_scores'])
-    # indices, labels, scores = np.array(indices), np.array(labels), np.array(scores)
-    # idx_sorted = indices[labels == 0][np.argsort(scores[labels == 0])]  # sorted from lowest to highest anomaly score
 
-    # if dataset_name in ('mnist', 'cifar10'):
 
-    #     if dataset_name == 'mnist':
-    #         X_normals = dataset.test_set.test_data[idx_sorted[:32], ...].unsqueeze(1)
-    #         X_outliers = dataset.test_set.test_data[idx_sorted[-32:], ...].unsqueeze(1)
 
-    #     if dataset_name == 'cifar10':
-    #         X_normals = torch.tensor(np.transpose(dataset.test_set.test_data[idx_sorted[:32], ...], (0, 3, 1, 2)))
-    #         X_outliers = torch.tensor(np.transpose(dataset.test_set.test_data[idx_sorted[-32:], ...], (0, 3, 1, 2)))
+    # deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='fgsm',epsilon=cfg.settings['eps'],alpha=cfg.settings['alpha'])
+    # clear_auc=deep_SVDD.results['clear_auc']
+    # normal_auc=deep_SVDD.results['normal_auc']
+    # anomal_auc=deep_SVDD.results['anomal_auc']
+    # both_auc=deep_SVDD.results['both_auc']
 
-    #     plot_images_grid(X_normals, export_img=xp_path + '/normals', title='Most normal examples', padding=2)
-    #     plot_images_grid(X_outliers, export_img=xp_path + '/outliers', title='Most anomalous examples', padding=2)
+    # mine_result['Attack_Type'].extend(['fgsm','fgsm','fgsm','fgsm'])
+    # mine_result['Attack_Target'].extend(['clean','normal','anomal','both'])
+    # mine_result['ADV_AUC'].extend([clear_auc,normal_auc,anomal_auc,both_auc])        
+    
+    # print(f'FGSM Adv Adverserial Clean: {clear_auc}')
+    # print(f'FGSM Adv Adverserial Normal: {normal_auc}')
+    # print(f'FGSM Adv Adverserial Anomal: {anomal_auc}')
+    # print(f'FGSM Adv Adverserial Both: {both_auc}\n\n')
 
-    # Save results, model, and configuration
+    df = pd.DataFrame(mine_result)    
+    df.to_csv(os.path.join('./',f'Results_SVDD_{dataset_name}_Class_{normal_class}.csv'), index=False)
+
+
     deep_SVDD.save_results(export_json=xp_path + '/results.json')
     deep_SVDD.save_model(export_model=xp_path + '/model.tar')
     cfg.save_config(export_json=xp_path + '/config.json')
