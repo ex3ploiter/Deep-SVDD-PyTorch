@@ -10,7 +10,7 @@ import torch
 import torch.optim as optim
 import numpy as np
 
-from Attack import *
+from .Attack import *
 
 
 class DeepSVDDTrainer(BaseTrainer):
@@ -122,7 +122,10 @@ class DeepSVDDTrainer(BaseTrainer):
         net = net.to(self.device)
 
         # Get test data loader
-        _, test_loader = dataset.loaders(batch_size=self.batch_size, num_workers=self.n_jobs_dataloader)
+        
+        batch_size_=1
+        
+        _, test_loader = dataset.loaders(batch_size=batch_size_, num_workers=self.n_jobs_dataloader)
 
         # Testing
         logger.info('Starting testing...')
