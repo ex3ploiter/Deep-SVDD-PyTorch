@@ -32,7 +32,12 @@ class DeepSVDDTrainer(BaseTrainer):
 
         # Results
         self.train_time = None
-        self.test_auc = None
+        self.test_auc_clear = None
+        self.test_auc_normal = None
+        self.test_auc_anomal = None
+        self.test_auc_both = None
+
+
         self.test_time = None
         self.test_scores = None
 
@@ -108,7 +113,7 @@ class DeepSVDDTrainer(BaseTrainer):
 
         return net
 
-    def test(self, dataset: BaseADDataset, net: BaseNet):
+    def test(self, dataset: BaseADDataset, net: BaseNet,attack_type='fgsm',epsilon=8/255,alpha=1e-2):
         logger = logging.getLogger()
 
         # Set device for network
@@ -126,17 +131,29 @@ class DeepSVDDTrainer(BaseTrainer):
             for data in test_loader:
                 inputs, labels, idx = data
                 inputs = inputs.to(self.device)
-                outputs = net(inputs)
-                dist = torch.sum((outputs - self.c) ** 2, dim=1)
-                if self.objective == 'soft-boundary':
-                    scores = dist - self.R ** 2
-                else:
-                    scores = dist
+
+                no_adv_scores=self.getScore(net,inputs)
+
+                if attack_type=='fgsm':
+                    adv_delta=fgsm(net,inputs,epsilon=epsilon,self.objective,self.R,self.c)
+                
+                if attack_type=='pgd':
+                    adv_delta=pgd(net, inputs, epsilon=epsilon,alpha=alpha, 10,self.objective,self.R,self.c)
+                
+                inputs = inputs+adv_delta if labels==0 else inputs-adv_delta
+
+                adv_scores=self.getScore(net,inputs)
+                
 
                 # Save triples of (idx, label, score) in a list
                 idx_label_score += list(zip(idx.cpu().data.numpy().tolist(),
                                             labels.cpu().data.numpy().tolist(),
-                                            scores.cpu().data.numpy().tolist()))
+                                            no_adv_scores.cpu().data.numpy().tolist()),
+                                            adv_scores.cpu().data.numpy().tolist()
+                                            )
+
+  
+
 
         self.test_time = time.time() - start_time
         logger.info('Testing time: %.3f' % self.test_time)
@@ -144,15 +161,35 @@ class DeepSVDDTrainer(BaseTrainer):
         self.test_scores = idx_label_score
 
         # Compute AUC
-        _, labels, scores = zip(*idx_label_score)
+        _, labels, no_adv_scores,adv_scores = zip(*idx_label_score)
         labels = np.array(labels)
-        scores = np.array(scores)
+        no_adv_scores = np.array(no_adv_scores)
+        adv_scores = np.array(adv_scores)
 
-        self.test_auc = roc_auc_score(labels, scores)
-        logger.info('Test set AUC: {:.2f}%'.format(100. * self.test_auc))
+        normal_imgs_idx=np.argwhere(labels==0).flatten().tolist()
+        anomal_imgs_idx=np.argwhere(labels==1).flatten().tolist() 
+
+
+        self.test_auc_clear=roc_auc_score(labels, no_adv_scores)
+        self.test_auc_normal=roc_auc_score(labels[normal_imgs_idx].tolist()+labels[anomal_imgs_idx].tolist(),adv_scores[normal_imgs_idx].tolist()+no_adv_scores[anomal_imgs_idx].tolist())
+        self.test_auc_anomal=roc_auc_score(labels[normal_imgs_idx].tolist()+labels[anomal_imgs_idx].tolist(),no_adv_scores[normal_imgs_idx].tolist()+adv_scores[anomal_imgs_idx].tolist())
+        self.test_auc_both=roc_auc_score(labels, adv_scores)               
+
+
+        # self.test_auc = roc_auc_score(labels, scores)
+        # logger.info('Test set AUC: {:.2f}%'.format(100. * self.test_auc))
 
         logger.info('Finished testing.')
 
+    def getScore(self,net,inputs):
+        outputs = net(inputs)
+        dist = torch.sum((outputs - self.c) ** 2, dim=1)
+        if self.objective == 'soft-boundary':
+            scores = dist - self.R ** 2
+        else:
+            scores = dist
+        return scores
+        
     def init_center_c(self, train_loader: DataLoader, net: BaseNet, eps=0.1):
         """Initialize hypersphere center c as the mean from an initial forward pass on the data."""
         n_samples = 0

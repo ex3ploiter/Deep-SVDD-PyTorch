@@ -162,7 +162,8 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
                     n_jobs_dataloader=n_jobs_dataloader)
 
     # Test model
-    deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader)
+    deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='fgsm',epsilon=8/255,alpha=1e-2)
+    
 
     # Plot most anomalous and most normal (within-class) test samples
     indices, labels, scores = zip(*deep_SVDD.results['test_scores'])

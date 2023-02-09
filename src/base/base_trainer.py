@@ -27,7 +27,7 @@ class BaseTrainer(ABC):
         pass
 
     @abstractmethod
-    def test(self, dataset: BaseADDataset, net: BaseNet):
+    def test(self, dataset: BaseADDataset, net: BaseNet,attack_type='fgsm',epsilon=8/255,alpha=1e-2):
         """
         Implement test method that evaluates the test_set of dataset on the given network.
         """
