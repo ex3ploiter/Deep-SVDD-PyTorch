@@ -136,7 +136,7 @@ class DeepSVDDTrainer(BaseTrainer):
         net.eval()
         with torch.no_grad():
             # for data in test_loader:
-                for (data) in (tqdm(test_loader, desc='Testing Adversarial')):
+            for (data) in (tqdm(test_loader, desc='Testing Adversarial')):
                 inputs, labels, idx = data
                 inputs = inputs.to(self.device)
 
