@@ -38,7 +38,8 @@ class AETrainer(BaseTrainer):
         logger.info('Starting pretraining...')
         start_time = time.time()
         ae_net.train()
-        for epoch in range(self.n_epochs):
+        # for epoch in range(self.n_epochs):
+        for epoch in tqdm(range(self.n_epochs)):
 
             scheduler.step()
             if epoch in self.lr_milestones:

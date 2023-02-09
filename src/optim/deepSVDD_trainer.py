@@ -71,7 +71,8 @@ class DeepSVDDTrainer(BaseTrainer):
         logger.info('Starting training...')
         start_time = time.time()
         net.train()
-        for epoch in range(self.n_epochs):
+        # for epoch in range(self.n_epochs):
+        for epoch in tqdm(range(self.n_epochs)):
 
             scheduler.step()
             if epoch in self.lr_milestones:
@@ -80,9 +81,7 @@ class DeepSVDDTrainer(BaseTrainer):
             loss_epoch = 0.0
             n_batches = 0
             epoch_start_time = time.time()
-            # for data in train_loader:
-            for (data) in (tqdm(train_loader, desc='Training')):
-                                
+            for data in train_loader:                    
                 inputs, _, _ = data
                 inputs = inputs.to(self.device)
 
