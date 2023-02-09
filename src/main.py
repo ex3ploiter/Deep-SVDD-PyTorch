@@ -163,11 +163,15 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
 
     # Test model
     deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='fgsm',epsilon=8/255,alpha=1e-2)
+    clear_auc=deep_SVDD.results['clear_auc']
+    normal_auc=deep_SVDD.results['normal_auc']
+    anomal_auc=deep_SVDD.results['anomal_auc']
+    both_auc=deep_SVDD.results['both_auc']
     
-    print(f'Adv Adverserial Clean: {deep_SVDD.results['clear_auc']}')
-    print(f'Adv Adverserial Normal: {deep_SVDD.results['normal_auc']}')
-    print(f'Adv Adverserial Anomal: {deep_SVDD.results['anomal_auc']}')
-    print(f'Adv Adverserial Both: {deep_SVDD.results['both_auc']}\n\n')
+    print(f'Adv Adverserial Clean: {clear_auc}')
+    print(f'Adv Adverserial Normal: {normal_auc}')
+    print(f'Adv Adverserial Anomal: {anomal_auc}')
+    print(f'Adv Adverserial Both: {both_auc}\n\n')
 
     # Plot most anomalous and most normal (within-class) test samples
     # indices, labels, scores = zip(*deep_SVDD.results['test_scores'])
