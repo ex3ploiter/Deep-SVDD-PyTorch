@@ -156,9 +156,9 @@ class DeepSVDDTrainer(BaseTrainer):
             # Save triples of (idx, label, score) in a list
             idx_label_score += list(zip(idx.cpu().data.numpy().tolist(),
                                         labels.cpu().data.numpy().tolist(),
-                                        no_adv_scores.cpu().data.numpy().tolist()),
+                                        no_adv_scores.cpu().data.numpy().tolist(),
                                         adv_scores.cpu().data.numpy().tolist()
-                                        )
+                                        ))
 
 
 
