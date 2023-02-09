@@ -61,7 +61,7 @@ import pandas as pd
 
 def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, objective, nu, device, seed,
          optimizer_name, lr, n_epochs, lr_milestone, batch_size, weight_decay, pretrain, ae_optimizer_name, ae_lr,
-         ae_n_epochs, ae_lr_milestone, ae_batch_size, ae_weight_decay, n_jobs_dataloader, normal_class):
+         ae_n_epochs, ae_lr_milestone, ae_batch_size, ae_weight_decay, n_jobs_dataloader, normal_class,eps,alpha):
     """
     Deep SVDD, a fully deep method for anomaly detection.
 
