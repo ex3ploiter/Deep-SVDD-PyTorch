@@ -18,7 +18,7 @@ class CIFAR10_Dataset(TorchvisionDataset):
         self.outlier_classes.remove(normal_class)
 
         # Pre-computed min and max values (after applying GCN) from train data per class
-        min_max = [(-28.94083453598571, 13.802961825439636),
+        self.min_max = [(-28.94083453598571, 13.802961825439636),
                    (-6.681770233365245, 9.158067708230273),
                    (-34.924463588638204, 14.419298165027628),
                    (-10.599172931391799, 11.093187820377565),
@@ -31,9 +31,9 @@ class CIFAR10_Dataset(TorchvisionDataset):
 
         # CIFAR-10 preprocessing: GCN (with L1 norm) and min-max feature scaling to [0,1]
         transform = transforms.Compose([transforms.ToTensor(),
-                                        transforms.Lambda(lambda x: global_contrast_normalization(x, scale='l1')),
-                                        transforms.Normalize([min_max[normal_class][0]] * 3,
-                                                             [min_max[normal_class][1] - min_max[normal_class][0]] * 3)])
+                                        transforms.Lambda(lambda x: global_contrast_normalization(x, scale='l1'))])
+                                        # transforms.Normalize([min_max[normal_class][0]] * 3,
+                                        #                      [min_max[normal_class][1] - min_max[normal_class][0]] * 3)])
 
         target_transform = transforms.Lambda(lambda x: int(x in self.outlier_classes))
 
