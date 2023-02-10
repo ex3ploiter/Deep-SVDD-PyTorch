@@ -39,7 +39,7 @@ class PGD(Attack):
         
         self.model=model
 
-    def forward(self, images,labels,semi_targets,c,eta,eps):
+    def forward(self, images,labels,c,R,objective):
         r"""
         Overridden.
         """
@@ -61,7 +61,7 @@ class PGD(Attack):
         for _ in range(self.steps):
             adv_images.requires_grad = True
             # outputs = self.get_logits(adv_images)
-            _,outputs=getScore(self.model,adv_images,semi_targets,c,eta,eps)
+            outputs=getScore(self.model,images,c,R,objective)
 
             # Calculate loss
             if self.targeted:
@@ -79,12 +79,11 @@ class PGD(Attack):
 
         return adv_images
     
-def getScore(net,inputs,semi_targets,c,eta,eps):
+def getScore(net,inputs,c,R,objective):
     outputs = net(inputs)
     dist = torch.sum((outputs - c) ** 2, dim=1)
-    losses = torch.where(semi_targets == 0, dist, eta * ((dist + eps) ** semi_targets.float()))
-    loss = torch.mean(losses)
-    scores = dist
-    
-    return loss,scores
-    
+    if objective == 'soft-boundary':
+        scores = dist - R ** 2
+    else:
+        scores = dist
+    return scores
