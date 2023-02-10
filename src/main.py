@@ -35,8 +35,8 @@ class NormalizeClass_ThreeChannel():
         self.mu=[self.minmax[normal_class][0]] * 3
         self.std=[self.minmax[normal_class][1] - self.minmax[normal_class][0]] * 3
 
-        self.mu=torch.tensor(self.mu)
-        self.std=torch.tensor(self.std)
+        self.mu=torch.tensor(self.mu).view(3,1,1).cuda()
+        self.std=torch.tensor(self.std).view(3,1,1).cuda()
         
         
     def normalize(self,x):
@@ -153,10 +153,10 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
     # Load data
     dataset = load_dataset(dataset_name, data_path, normal_class)
     
-    if dataset_name=='mnist' or dataset_name=='mnist':
+    if dataset_name=='mnist' or dataset_name=='fashionmnist':
         normal_obj=NormalizeClass_OneChannel(dataset.min_max,normal_class)
 
-    if dataset_name=='cifar10':
+    if dataset_name=='cifar10' or dataset_name=='svhn':
         normal_obj=NormalizeClass_ThreeChannel(dataset.min_max,normal_class)
 
     

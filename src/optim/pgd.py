@@ -72,6 +72,8 @@ class PGD(Attack):
             
             delta = torch.clamp(adv_images - images, min=-self.eps, max=self.eps)
             # adv_images = torch.clamp(images + delta, min=0, max=1).detach()
+            
+            adv_images = (images + delta).detach()
 
         # print(f'Label :  {labels}')
         # print(f'new Score delta: {getScore(self.model,images,c,R,objective)}')
