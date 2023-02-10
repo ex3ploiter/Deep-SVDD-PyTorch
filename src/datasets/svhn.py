@@ -19,7 +19,7 @@ class SVHN_Dataset(TorchvisionDataset):
         self.outlier_classes.remove(normal_class)
 
         # Pre-computed min and max values (after applying GCN) from train data per class
-        min_max = [
+        self.min_max = [
             (-9.810971260070801, 11.722309112548828),
             (-11.558295249938965, 11.186696052551270),
             (-12.608600616455078, 12.058191299438477),

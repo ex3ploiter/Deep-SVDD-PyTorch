@@ -50,8 +50,8 @@ class NormalizeClass_ThreeChannel():
 # Settings
 ################################################################################
 @click.command()
-@click.argument('dataset_name', type=click.Choice(['mnist', 'cifar10','fashionmnist','svhn']))
-@click.argument('net_name', type=click.Choice(['mnist_LeNet', 'cifar10_LeNet', 'cifar10_LeNet_ELU']))
+@click.argument('dataset_name', type=click.Choice(['mnist', 'cifar10','fashionmnist','svhn','mvtec']))
+@click.argument('net_name', type=click.Choice(['mnist_LeNet', 'cifar10_LeNet', 'cifar10_LeNet_ELU','mvtec_LeNet']))
 @click.argument('xp_path', type=click.Path(exists=True))
 @click.argument('data_path', type=click.Path(exists=True))
 @click.option('--load_config', type=click.Path(exists=True), default=None,
@@ -156,7 +156,7 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
     if dataset_name=='mnist' or dataset_name=='fashionmnist':
         normal_obj=NormalizeClass_OneChannel(dataset.min_max,normal_class)
 
-    if dataset_name=='cifar10' or dataset_name=='svhn':
+    if dataset_name=='cifar10' or dataset_name=='svhn' or dataset_name=='mvtec':
         normal_obj=NormalizeClass_ThreeChannel(dataset.min_max,normal_class)
 
     
