@@ -7,7 +7,7 @@ from .mvtec import MVTec_Dataset
 def load_dataset(dataset_name, data_path, normal_class):
     """Loads the dataset."""
 
-    implemented_datasets = ('mnist', 'cifar10','fashionmnist','svhn')
+    implemented_datasets = ('mnist', 'cifar10','fashionmnist','svhn','mvtec')
     assert dataset_name in implemented_datasets
 
     dataset = None
