@@ -20,6 +20,8 @@ def build_network(net_name,normal_obj):
     if net_name == 'cifar10_LeNet_ELU':
         net = CIFAR10_LeNet_ELU()
 
+    print(f"\n This Obj : {normal_obj}\n")
+    
     net.normal_obj=normal_obj
     
     return net
@@ -43,5 +45,7 @@ def build_autoencoder(net_name,normal_obj):
         ae_net = CIFAR10_LeNet_ELU_Autoencoder()
 
     ae_net.normal_obj=normal_obj
+    
+    print(f"\n This Obj : {normal_obj}\n")
     
     return ae_net

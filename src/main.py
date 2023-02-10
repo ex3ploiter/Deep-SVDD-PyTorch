@@ -156,6 +156,8 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
     if dataset_name=='mnist':
         normal_obj=NormalizeClass_OneChannel(dataset.min_max,normal_class)
 
+    
+    
     # Initialize DeepSVDD model and set neural network \phi
     deep_SVDD = DeepSVDD(cfg.settings['objective'], cfg.settings['nu'])
     deep_SVDD.set_network(net_name,normal_obj)
