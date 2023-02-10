@@ -39,31 +39,23 @@ class FGSM(Attack):
         images = images.clone().detach().to(self.device)
         labels = labels.clone().detach().to(self.device)
 
-        # if self.targeted:
-            # target_labels = self.get_target_label(images, labels)
-
-        loss = nn.BCEWithLogitsLoss()
-
         images.requires_grad = True
         
-        outputs=getScore(self.model,images,c,R,objective)
+        cost=getScore(self.model,images,c,R,objective)
 
-        cost = +loss(outputs, labels.float())
-        
-        # outputs = self.get_logits(images)
-
-        # # Calculate loss
-        # if self.targeted:
-        #     cost = -loss(outputs, target_labels)
-        # else:
-        #     cost = loss(outputs, labels)
-
-        # Update adversarial images
         grad = torch.autograd.grad(cost, images,
                                    retain_graph=False, create_graph=False)[0]
 
-        adv_images = images + self.eps*grad.sign()
-        adv_images = torch.clamp(adv_images, min=0, max=1).detach()
+
+        
+        adv_images= images+self.eps*grad.sign() if labels==0 else images-self.eps*grad.sign()
+        
+        
+        # adv_images = torch.clamp(adv_images, min=0, max=1).detach()
+        
+        # print(f'Label :  {labels}')
+        # print(f'new Score delta: {getScore(self.model,images,c,R,objective)}')
+        # print(f'new Score delta: {getScore(self.model,adv_images,c,R,objective)}\n\n')
 
         return adv_images
     

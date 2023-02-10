@@ -46,10 +46,8 @@ class PGD(Attack):
         images = images.clone().detach().to(self.device)
         labels = labels.clone().detach().to(self.device)
 
-        if self.targeted:
-            target_labels = self.get_target_label(images, labels)
 
-        loss = nn.BCEWithLogitsLoss()
+
 
         adv_images = images.clone().detach()
 
@@ -61,21 +59,22 @@ class PGD(Attack):
         for _ in range(self.steps):
             adv_images.requires_grad = True
             # outputs = self.get_logits(adv_images)
-            outputs=getScore(self.model,images,c,R,objective)
+            cost=getScore(self.model,adv_images,c,R,objective)
 
-            # Calculate loss
-            if self.targeted:
-                cost = -loss(outputs, target_labels)
-            else:
-                cost = loss(outputs, labels.float())
 
             # Update adversarial images
             grad = torch.autograd.grad(cost, adv_images,
                                        retain_graph=False, create_graph=False)[0]
 
-            adv_images = adv_images.detach() + self.alpha*grad.sign()
+            # adv_images = adv_images.detach() + self.alpha*grad.sign()
+            
+            adv_images= adv_images+self.alpha*grad.sign() if labels==0 else adv_images-self.alpha*grad.sign()
+            
             delta = torch.clamp(adv_images - images, min=-self.eps, max=self.eps)
-            adv_images = torch.clamp(images + delta, min=0, max=1).detach()
+            
+            adv_images= adv_images+delta if labels==0 else adv_images-delta
+            
+            adv_images = torch.clamp(adv_images, min=0, max=1).detach()
 
         return adv_images
     
