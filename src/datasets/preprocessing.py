@@ -24,7 +24,10 @@ def global_contrast_normalization(x: torch.tensor, scale='l2'):
     n_features = int(np.prod(x.shape))
 
     mean = torch.mean(x)  # mean over all features (pixels) per sample
-    x -= mean
+    if x.requires_grad==True:
+        x.data -= mean    
+    else:
+        x -= mean
 
     if scale == 'l1':
         x_scale = torch.mean(torch.abs(x))
@@ -32,6 +35,9 @@ def global_contrast_normalization(x: torch.tensor, scale='l2'):
     if scale == 'l2':
         x_scale = torch.sqrt(torch.sum(x ** 2)) / n_features
 
-    x /= x_scale
+    if x.requires_grad==True:
+        x.data /= x_scale
+    else:
+        x /= x_scale
 
     return x
