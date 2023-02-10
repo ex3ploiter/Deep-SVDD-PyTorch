@@ -30,10 +30,10 @@ class MNIST_Dataset(TorchvisionDataset):
                    (-0.7369959242164307, 10.697039838804978)]
 
         # MNIST preprocessing: GCN (with L1 norm) and min-max feature scaling to [0,1]
-        transform = transforms.Compose([transforms.ToTensor(),
-                                        transforms.Lambda(lambda x: global_contrast_normalization(x, scale='l1')),
-                                        transforms.Normalize([min_max[normal_class][0]],
-                                                             [min_max[normal_class][1] - min_max[normal_class][0]])])
+        transform = transforms.Compose([transforms.ToTensor(),])
+                                        # transforms.Lambda(lambda x: global_contrast_normalization(x, scale='l1')),
+                                        # transforms.Normalize([min_max[normal_class][0]],
+                                        #                      [min_max[normal_class][1] - min_max[normal_class][0]])])
 
         target_transform = transforms.Lambda(lambda x: int(x in self.outlier_classes))
 

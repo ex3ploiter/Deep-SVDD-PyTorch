@@ -10,10 +10,6 @@ import torch
 import torch.optim as optim
 import numpy as np
 
-from .Attack import *
-
-from tqdm import tqdm
-
 
 class DeepSVDDTrainer(BaseTrainer):
 
@@ -36,14 +32,14 @@ class DeepSVDDTrainer(BaseTrainer):
 
         # Results
         self.train_time = None
+        self.test_auc = None
+        self.test_time = None
+        self.test_scores = None
+        
         self.test_auc_clear = None
         self.test_auc_normal = None
         self.test_auc_anomal = None
-        self.test_auc_both = None
-
-
-        self.test_time = None
-        self.test_scores = None
+        self.test_auc_both = None          
 
     def train(self, dataset: BaseADDataset, net: BaseNet):
         logger = logging.getLogger()
@@ -71,8 +67,7 @@ class DeepSVDDTrainer(BaseTrainer):
         logger.info('Starting training...')
         start_time = time.time()
         net.train()
-        # for epoch in range(self.n_epochs):
-        for epoch in tqdm(range(self.n_epochs)):
+        for epoch in range(self.n_epochs):
 
             scheduler.step()
             if epoch in self.lr_milestones:
@@ -81,7 +76,7 @@ class DeepSVDDTrainer(BaseTrainer):
             loss_epoch = 0.0
             n_batches = 0
             epoch_start_time = time.time()
-            for data in train_loader:                    
+            for data in train_loader:
                 inputs, _, _ = data
                 inputs = inputs.to(self.device)
 
@@ -125,10 +120,7 @@ class DeepSVDDTrainer(BaseTrainer):
         net = net.to(self.device)
 
         # Get test data loader
-        
-        batch_size_=1
-        
-        _, test_loader = dataset.loaders(batch_size=batch_size_, num_workers=self.n_jobs_dataloader)
+        _, test_loader = dataset.loaders(batch_size=self.batch_size, num_workers=self.n_jobs_dataloader)
 
         # Testing
         logger.info('Starting testing...')
@@ -136,33 +128,26 @@ class DeepSVDDTrainer(BaseTrainer):
         idx_label_score = []
         net.eval()
         # with torch.no_grad():
-        # for data in test_loader:
-        for (data) in (tqdm(test_loader, desc='Testing Adversarial')):
+        for data in test_loader:
             inputs, labels, idx = data
             inputs = inputs.to(self.device)
-
+            
             no_adv_scores=self.getScore(net,inputs)
 
             if attack_type=='fgsm':
-                adv_delta=attack_pgd(net,inputs,epsilon=1.25*epsilon,attack_iters=1,restarts=1, norm="l_inf",objective=self.objective,R=self.R,c=self.c)
-            
+                attack = FGSM(net, eps=epsilon)
+                adv_images = attack(inputs,labels,semi_targets,self.c,self.eta,self.eps)
             if attack_type=='pgd':
-                adv_delta=attack_pgd(net, inputs, epsilon=epsilon,alpha=alpha,attack_iters= 10,restarts=1, norm="l_inf",objective=self.objective,R=self.R,c=self.c)
+                attack = PGD(net, eps=epsilon, alpha=alpha, steps=10, random_start=True)
+                adv_images = attack(inputs, labels,semi_targets,self.c,self.eta,self.eps)
             
-            inputs = inputs+adv_delta if labels==0 else inputs-adv_delta
-
-            adv_scores=self.getScore(net,inputs)
-            
+            adv_scores=self.getScore(net,adv_images,semi_targets)
 
             # Save triples of (idx, label, score) in a list
             idx_label_score += list(zip(idx.cpu().data.numpy().tolist(),
                                         labels.cpu().data.numpy().tolist(),
                                         no_adv_scores.cpu().data.numpy().tolist(),
-                                        adv_scores.cpu().data.numpy().tolist()
-                                        ))
-
-
-
+                                        adv_scores.cpu().data.numpy().tolist()))
 
         self.test_time = time.time() - start_time
         logger.info('Testing time: %.3f' % self.test_time)
@@ -171,10 +156,10 @@ class DeepSVDDTrainer(BaseTrainer):
 
         # Compute AUC
         _, labels, no_adv_scores,adv_scores = zip(*idx_label_score)
-        labels = np.array(labels)
         no_adv_scores = np.array(no_adv_scores)
         adv_scores = np.array(adv_scores)
-
+        labels = np.array(labels)
+        
         normal_imgs_idx=np.argwhere(labels==0).flatten().tolist()
         anomal_imgs_idx=np.argwhere(labels==1).flatten().tolist() 
 
@@ -182,13 +167,9 @@ class DeepSVDDTrainer(BaseTrainer):
         self.test_auc_clear=roc_auc_score(labels, no_adv_scores)
         self.test_auc_normal=roc_auc_score(labels[normal_imgs_idx].tolist()+labels[anomal_imgs_idx].tolist(),adv_scores[normal_imgs_idx].tolist()+no_adv_scores[anomal_imgs_idx].tolist())
         self.test_auc_anomal=roc_auc_score(labels[normal_imgs_idx].tolist()+labels[anomal_imgs_idx].tolist(),no_adv_scores[normal_imgs_idx].tolist()+adv_scores[anomal_imgs_idx].tolist())
-        self.test_auc_both=roc_auc_score(labels, adv_scores)               
+        self.test_auc_both=roc_auc_score(labels, adv_scores)        
 
 
-        # self.test_auc = roc_auc_score(labels, scores)
-        # logger.info('Test set AUC: {:.2f}%'.format(100. * self.test_auc))
-
-        logger.info('Finished testing.')
 
     def getScore(self,net,inputs):
         outputs = net(inputs)

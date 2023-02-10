@@ -68,3 +68,5 @@ class MNIST_LeNet_Autoencoder(BaseNet):
         x = torch.sigmoid(x)
 
         return x
+    
+    
