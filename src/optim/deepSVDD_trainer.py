@@ -10,6 +10,10 @@ import torch
 import torch.optim as optim
 import numpy as np
 
+from .fgsm import FGSM
+from .pgd import PGD
+from tqdm import tqdm
+
 
 class DeepSVDDTrainer(BaseTrainer):
 
@@ -120,7 +124,7 @@ class DeepSVDDTrainer(BaseTrainer):
         net = net.to(self.device)
 
         # Get test data loader
-        _, test_loader = dataset.loaders(batch_size=self.batch_size, num_workers=self.n_jobs_dataloader)
+        _, test_loader = dataset.loaders(batch_size=1, num_workers=self.n_jobs_dataloader)
 
         # Testing
         logger.info('Starting testing...')
@@ -128,7 +132,7 @@ class DeepSVDDTrainer(BaseTrainer):
         idx_label_score = []
         net.eval()
         # with torch.no_grad():
-        for data in test_loader:
+        for (i,data) in enumerate(tqdm(test_loader, desc='Testing Adversarial')):
             inputs, labels, idx = data
             inputs = inputs.to(self.device)
             
@@ -136,12 +140,12 @@ class DeepSVDDTrainer(BaseTrainer):
 
             if attack_type=='fgsm':
                 attack = FGSM(net, eps=epsilon)
-                adv_images = attack(inputs,labels,semi_targets,self.c,self.eta,self.eps)
+                adv_images = attack(inputs,labels,c=self.c,R=self.R,objective=self.objective)
             if attack_type=='pgd':
                 attack = PGD(net, eps=epsilon, alpha=alpha, steps=10, random_start=True)
-                adv_images = attack(inputs, labels,semi_targets,self.c,self.eta,self.eps)
+                adv_images = attack(inputs,labels,c=self.c,R=self.R,objective=self.objective)
             
-            adv_scores=self.getScore(net,adv_images,semi_targets)
+            adv_scores=self.getScore(net,adv_images)
 
             # Save triples of (idx, label, score) in a list
             idx_label_score += list(zip(idx.cpu().data.numpy().tolist(),
