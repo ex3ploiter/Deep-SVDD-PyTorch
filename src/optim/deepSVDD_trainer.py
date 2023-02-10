@@ -10,9 +10,11 @@ import torch
 import torch.optim as optim
 import numpy as np
 
-from fgsm import FGSM
-from pgd import PGD
+from .fgsm import FGSM
+from .pgd import PGD
+
 from tqdm import tqdm
+from ..datasets.preprocessing import global_contrast_normalization
 
 
 class DeepSVDDTrainer(BaseTrainer):
@@ -117,7 +119,7 @@ class DeepSVDDTrainer(BaseTrainer):
 
         return net
 
-    def test(self, dataset: BaseADDataset, net: BaseNet,attack_type='fgsm',epsilon=8/255,alpha=1e-2):
+    def test(self, dataset: BaseADDataset, net: BaseNet,attack_type='fgsm',epsilon=8/255,alpha=1e-2,normal_obj=None):
         logger = logging.getLogger()
 
         # Set device for network
@@ -211,3 +213,5 @@ class DeepSVDDTrainer(BaseTrainer):
 def get_radius(dist: torch.Tensor, nu: float):
     """Optimally solve for radius R via the (1-nu)-quantile of distances."""
     return np.quantile(np.sqrt(dist.clone().data.cpu().numpy()), 1 - nu)
+
+

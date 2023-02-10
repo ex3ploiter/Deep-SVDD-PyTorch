@@ -52,10 +52,10 @@ class DeepSVDD(object):
             'test_scores': None,
         }
 
-    def set_network(self, net_name):
+    def set_network(self, net_name,normal_obj):
         """Builds the neural network \phi."""
         self.net_name = net_name
-        self.net = build_network(net_name)
+        self.net = build_network(net_name,normal_obj)
 
     def train(self, dataset: BaseADDataset, optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 50,
               lr_milestones: tuple = (), batch_size: int = 128, weight_decay: float = 1e-6, device: str = 'cuda',
@@ -72,14 +72,14 @@ class DeepSVDD(object):
         self.c = self.trainer.c.cpu().data.numpy().tolist()  # get list
         self.results['train_time'] = self.trainer.train_time
 
-    def test(self, dataset: BaseADDataset, device: str = 'cuda', n_jobs_dataloader: int = 0,attack_type='fgsm',epsilon=8/255,alpha=1e-2):
+    def test(self, dataset: BaseADDataset, device: str = 'cuda', n_jobs_dataloader: int = 0,attack_type='fgsm',epsilon=8/255,alpha=1e-2,normal_obj=None):
         """Tests the Deep SVDD model on the test data."""
 
         if self.trainer is None:
             self.trainer = DeepSVDDTrainer(self.objective, self.R, self.c, self.nu,
                                            device=device, n_jobs_dataloader=n_jobs_dataloader)
 
-        self.trainer.test(dataset, self.net,attack_type=attack_type,epsilon=epsilon,alpha=alpha)
+        self.trainer.test(dataset, self.net,attack_type=attack_type,epsilon=epsilon,alpha=alpha,normal_obj=normal_obj)
         # Get results
         self.results['clear_auc'] = self.trainer.test_auc_clear
         self.results['normal_auc'] = self.trainer.test_auc_normal

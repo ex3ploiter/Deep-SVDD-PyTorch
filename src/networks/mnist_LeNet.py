@@ -9,6 +9,8 @@ class MNIST_LeNet(BaseNet):
 
     def __init__(self):
         super().__init__()
+        
+        self.normalObj=None
 
         self.rep_dim = 32
         self.pool = nn.MaxPool2d(2, 2)
@@ -20,6 +22,8 @@ class MNIST_LeNet(BaseNet):
         self.fc1 = nn.Linear(4 * 7 * 7, self.rep_dim, bias=False)
 
     def forward(self, x):
+        x=self.normalObj.normalize(x)
+        
         x = self.conv1(x)
         x = self.pool(F.leaky_relu(self.bn1(x)))
         x = self.conv2(x)
@@ -33,6 +37,8 @@ class MNIST_LeNet_Autoencoder(BaseNet):
 
     def __init__(self):
         super().__init__()
+        
+        self.normalObj=None
 
         self.rep_dim = 32
         self.pool = nn.MaxPool2d(2, 2)
@@ -52,6 +58,8 @@ class MNIST_LeNet_Autoencoder(BaseNet):
         self.deconv3 = nn.ConvTranspose2d(8, 1, 5, bias=False, padding=2)
 
     def forward(self, x):
+        x=self.normalObj.normalize(x)
+        
         x = self.conv1(x)
         x = self.pool(F.leaky_relu(self.bn1(x)))
         x = self.conv2(x)

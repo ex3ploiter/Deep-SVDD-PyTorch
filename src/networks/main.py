@@ -3,7 +3,7 @@ from .cifar10_LeNet import CIFAR10_LeNet, CIFAR10_LeNet_Autoencoder
 from .cifar10_LeNet_elu import CIFAR10_LeNet_ELU, CIFAR10_LeNet_ELU_Autoencoder
 
 
-def build_network(net_name):
+def build_network(net_name,normal_obj):
     """Builds the neural network."""
 
     implemented_networks = ('mnist_LeNet', 'cifar10_LeNet', 'cifar10_LeNet_ELU')
@@ -20,10 +20,12 @@ def build_network(net_name):
     if net_name == 'cifar10_LeNet_ELU':
         net = CIFAR10_LeNet_ELU()
 
+    net.normal_obj=normal_obj
+    
     return net
 
 
-def build_autoencoder(net_name):
+def build_autoencoder(net_name,normal_obj):
     """Builds the corresponding autoencoder network."""
 
     implemented_networks = ('mnist_LeNet', 'cifar10_LeNet', 'cifar10_LeNet_ELU')
@@ -40,4 +42,6 @@ def build_autoencoder(net_name):
     if net_name == 'cifar10_LeNet_ELU':
         ae_net = CIFAR10_LeNet_ELU_Autoencoder()
 
+    ae_net.normal_obj=normal_obj
+    
     return ae_net

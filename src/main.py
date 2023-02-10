@@ -118,10 +118,16 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
 
     # Load data
     dataset = load_dataset(dataset_name, data_path, normal_class)
+    
+    if dataset_name=='mnist':
+        normal_obj=NormalizeClass_OneChannel(dataset.min_max,normal_class)
 
     # Initialize DeepSVDD model and set neural network \phi
     deep_SVDD = DeepSVDD(cfg.settings['objective'], cfg.settings['nu'])
-    deep_SVDD.set_network(net_name)
+    deep_SVDD.set_network(net_name,normal_obj)
+    
+    
+    
     # If specified, load Deep SVDD model (radius R, center c, network weights, and possibly autoencoder weights)
     if load_model:
         deep_SVDD.load_model(model_path=load_model, load_ae=True)
@@ -174,7 +180,7 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
     mine_result['ADV_AUC'] = []
     
     # Test model
-    deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='fgsm',epsilon=cfg.settings['eps'],alpha=cfg.settings['alpha'])
+    deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='fgsm',epsilon=cfg.settings['eps'],alpha=cfg.settings['alpha'],normal_obj=normal_obj)
     clear_auc=deep_SVDD.results['clear_auc']
     normal_auc=deep_SVDD.results['normal_auc']
     anomal_auc=deep_SVDD.results['anomal_auc']
@@ -218,3 +224,34 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
 
 if __name__ == '__main__':
     main()
+
+
+class NormalizeClass_OneChannel():
+    def __init__(self,minmax,normal_class) -> None:
+        self.minmax=minmax
+        self.mu=self.minmax[normal_class][0]
+        self.std=self.minmax[normal_class][1] - self.minmax[normal_class][0]
+        
+        self.mu=torch.tensor(self.mu)
+        self.std=torch.tensor(self.std)
+        
+    def normalize(self,x):
+        x=global_contrast_normalization(x)
+        x=(x-self.mu)/self.std
+        return x
+        
+class NormalizeClass_ThreeChannel():
+    def __init__(self,minmax,normal_class) -> None:
+        self.minmax=minmax
+        
+        self.mu=[self.minmax[normal_class][0]] * 3
+        self.std=[self.minmax[normal_class][1] - self.minmax[normal_class][0]] * 3
+
+        self.mu=torch.tensor(self.mu)
+        self.std=torch.tensor(self.std)
+        
+        
+    def normalize(self,x):
+        x=global_contrast_normalization(x)
+        x=(x-self.mu)/self.std
+        return x
