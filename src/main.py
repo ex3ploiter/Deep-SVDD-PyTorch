@@ -24,7 +24,7 @@ class NormalizeClass_OneChannel():
         self.std=torch.tensor(self.std)
         
     def normalize(self,x):
-        x=global_contrast_normalization(x)
+        x=global_contrast_normalization(x,'l1')
         x=(x-self.mu)/self.std
         return x
         
@@ -40,7 +40,7 @@ class NormalizeClass_ThreeChannel():
         
         
     def normalize(self,x):
-        x=global_contrast_normalization(x)
+        x=global_contrast_normalization(x,'l1')
         x=(x-self.mu)/self.std
         return x
 
@@ -156,7 +156,9 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
     if dataset_name=='mnist':
         normal_obj=NormalizeClass_OneChannel(dataset.min_max,normal_class)
 
-    
+    if dataset_name=='cifar10':
+        normal_obj=NormalizeClass_ThreeChannel(dataset.min_max,normal_class)
+
     
     # Initialize DeepSVDD model and set neural network \phi
     deep_SVDD = DeepSVDD(cfg.settings['objective'], cfg.settings['nu'])
