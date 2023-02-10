@@ -119,7 +119,7 @@ class DeepSVDDTrainer(BaseTrainer):
 
         return net
 
-    def test(self, dataset: BaseADDataset, net: BaseNet,attack_type='fgsm',epsilon=8/255,alpha=1e-2,normal_obj=None):
+    def test(self, dataset: BaseADDataset, net: BaseNet,attack_type='fgsm',epsilon=8/255,alpha=1e-2):
         logger = logging.getLogger()
 
         # Set device for network

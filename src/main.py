@@ -180,7 +180,7 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
     mine_result['ADV_AUC'] = []
     
     # Test model
-    deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='fgsm',epsilon=cfg.settings['eps'],alpha=cfg.settings['alpha'],normal_obj=normal_obj)
+    deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='fgsm',epsilon=cfg.settings['eps'],alpha=cfg.settings['alpha'])
     clear_auc=deep_SVDD.results['clear_auc']
     normal_auc=deep_SVDD.results['normal_auc']
     anomal_auc=deep_SVDD.results['anomal_auc']
