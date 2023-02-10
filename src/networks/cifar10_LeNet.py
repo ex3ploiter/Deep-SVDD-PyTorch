@@ -10,6 +10,8 @@ class CIFAR10_LeNet(BaseNet):
     def __init__(self):
         super().__init__()
 
+        self.normalObj=None
+        
         self.rep_dim = 128
         self.pool = nn.MaxPool2d(2, 2)
 
@@ -22,6 +24,9 @@ class CIFAR10_LeNet(BaseNet):
         self.fc1 = nn.Linear(128 * 4 * 4, self.rep_dim, bias=False)
 
     def forward(self, x):
+        
+        x=self.normalObj.normalize(x)
+        
         x = self.conv1(x)
         x = self.pool(F.leaky_relu(self.bn2d1(x)))
         x = self.conv2(x)
@@ -37,6 +42,8 @@ class CIFAR10_LeNet_Autoencoder(BaseNet):
 
     def __init__(self):
         super().__init__()
+        
+        self.normalObj=None
 
         self.rep_dim = 128
         self.pool = nn.MaxPool2d(2, 2)
@@ -68,6 +75,10 @@ class CIFAR10_LeNet_Autoencoder(BaseNet):
         nn.init.xavier_uniform_(self.deconv4.weight, gain=nn.init.calculate_gain('leaky_relu'))
 
     def forward(self, x):
+        
+        x=self.normalObj.normalize(x)
+        
+        
         x = self.conv1(x)
         x = self.pool(F.leaky_relu(self.bn2d1(x)))
         x = self.conv2(x)

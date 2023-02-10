@@ -18,7 +18,7 @@ class FashionMNIST_Dataset(TorchvisionDataset):
         self.outlier_classes.remove(normal_class)
 
         # Pre-computed min and max values (after applying GCN) from train data per class
-        min_max = [(-2.681241989135742, 24.854305267333984),
+        self.min_max = [(-2.681241989135742, 24.854305267333984),
                    (-2.577857017517090, 11.169789314270020),
                    (-2.808170318603516, 19.133543014526367),
                    (-1.953365325927734, 18.656726837158203),
@@ -30,11 +30,11 @@ class FashionMNIST_Dataset(TorchvisionDataset):
                    (-1.385928869247437, 11.426652908325195)]
 
         # FashionMNIST preprocessing: GCN (with L1 norm) and min-max feature scaling to [0,1]
-        transform = transforms.Compose([transforms.ToTensor(),
-                                        transforms.Lambda(
-                                            lambda x: global_contrast_normalization(x, scale='l1')),
-                                        transforms.Normalize([min_max[normal_class][0]],
-                                                             [min_max[normal_class][1] - min_max[normal_class][0]])])
+        transform = transforms.Compose([transforms.ToTensor(),])
+                                        # transforms.Lambda(
+                                        #     lambda x: global_contrast_normalization(x, scale='l1')),
+                                        # transforms.Normalize([min_max[normal_class][0]],
+                                        #                      [min_max[normal_class][1] - min_max[normal_class][0]])])
 
         target_transform = transforms.Lambda(
             lambda x: int(x in self.outlier_classes))
