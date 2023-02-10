@@ -10,8 +10,8 @@ import torch
 import torch.optim as optim
 import numpy as np
 
-from .fgsm import FGSM
-from .pgd import PGD
+from fgsm import FGSM
+from pgd import PGD
 from tqdm import tqdm
 
 
