@@ -12,6 +12,40 @@ from datasets.main import load_dataset
 import os 
 import pandas as pd 
 
+from datasets.preprocessing import global_contrast_normalization
+
+class NormalizeClass_OneChannel():
+    def __init__(self,minmax,normal_class) -> None:
+        self.minmax=minmax
+        self.mu=self.minmax[normal_class][0]
+        self.std=self.minmax[normal_class][1] - self.minmax[normal_class][0]
+        
+        self.mu=torch.tensor(self.mu)
+        self.std=torch.tensor(self.std)
+        
+    def normalize(self,x):
+        x=global_contrast_normalization(x)
+        x=(x-self.mu)/self.std
+        return x
+        
+class NormalizeClass_ThreeChannel():
+    def __init__(self,minmax,normal_class) -> None:
+        self.minmax=minmax
+        
+        self.mu=[self.minmax[normal_class][0]] * 3
+        self.std=[self.minmax[normal_class][1] - self.minmax[normal_class][0]] * 3
+
+        self.mu=torch.tensor(self.mu)
+        self.std=torch.tensor(self.std)
+        
+        
+    def normalize(self,x):
+        x=global_contrast_normalization(x)
+        x=(x-self.mu)/self.std
+        return x
+
+
+
 ################################################################################
 # Settings
 ################################################################################
@@ -152,7 +186,7 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
                            batch_size=cfg.settings['ae_batch_size'],
                            weight_decay=cfg.settings['ae_weight_decay'],
                            device=device,
-                           n_jobs_dataloader=n_jobs_dataloader)
+                           n_jobs_dataloader=n_jobs_dataloader,normal_obj=normal_obj)
 
     # Log training details
     logger.info('Training optimizer: %s' % cfg.settings['optimizer_name'])
@@ -226,32 +260,3 @@ if __name__ == '__main__':
     main()
 
 
-class NormalizeClass_OneChannel():
-    def __init__(self,minmax,normal_class) -> None:
-        self.minmax=minmax
-        self.mu=self.minmax[normal_class][0]
-        self.std=self.minmax[normal_class][1] - self.minmax[normal_class][0]
-        
-        self.mu=torch.tensor(self.mu)
-        self.std=torch.tensor(self.std)
-        
-    def normalize(self,x):
-        x=global_contrast_normalization(x)
-        x=(x-self.mu)/self.std
-        return x
-        
-class NormalizeClass_ThreeChannel():
-    def __init__(self,minmax,normal_class) -> None:
-        self.minmax=minmax
-        
-        self.mu=[self.minmax[normal_class][0]] * 3
-        self.std=[self.minmax[normal_class][1] - self.minmax[normal_class][0]] * 3
-
-        self.mu=torch.tensor(self.mu)
-        self.std=torch.tensor(self.std)
-        
-        
-    def normalize(self,x):
-        x=global_contrast_normalization(x)
-        x=(x-self.mu)/self.std
-        return x

@@ -14,7 +14,7 @@ from .fgsm import FGSM
 from .pgd import PGD
 
 from tqdm import tqdm
-from ..datasets.preprocessing import global_contrast_normalization
+
 
 
 class DeepSVDDTrainer(BaseTrainer):
