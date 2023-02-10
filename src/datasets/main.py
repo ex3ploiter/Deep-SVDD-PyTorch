@@ -2,7 +2,7 @@ from .mnist import MNIST_Dataset
 from .cifar10 import CIFAR10_Dataset
 from .fashionmnist import FashionMNIST_Dataset
 from .svhn import SVHN_Dataset
-
+from .mvtec import MVTec_Dataset
 
 def load_dataset(dataset_name, data_path, normal_class):
     """Loads the dataset."""
@@ -21,7 +21,7 @@ def load_dataset(dataset_name, data_path, normal_class):
     if dataset_name == 'fashionmnist':
         dataset = FashionMNIST_Dataset(root=data_path, normal_class=normal_class)
 
-    if dataset_name == 'svhn':
-        dataset = SVHN_Dataset(root=data_path, normal_class=normal_class)
-
+    if dataset_name == 'mvtec':
+        dataset = MVTec_Dataset(root=data_path, normal_class=normal_class)
+    
     return dataset
