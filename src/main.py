@@ -219,41 +219,41 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
     mine_result['setting'] = [] 
     
     # Test model
-    # deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='fgsm',epsilon=cfg.settings['eps'],alpha=cfg.settings['alpha'])
-    # clear_auc=deep_SVDD.results['clear_auc']
-    # normal_auc=deep_SVDD.results['normal_auc']
-    # anomal_auc=deep_SVDD.results['anomal_auc']
-    # both_auc=deep_SVDD.results['both_auc']
+    deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='fgsm',epsilon=cfg.settings['eps'],alpha=cfg.settings['alpha'])
+    clear_auc=deep_SVDD.results['clear_auc']
+    normal_auc=deep_SVDD.results['normal_auc']
+    anomal_auc=deep_SVDD.results['anomal_auc']
+    both_auc=deep_SVDD.results['both_auc']
     
-    # print(f'FGSM Adv Adverserial Clean: {clear_auc}')
-    # print(f'FGSM Adv Adverserial Normal: {normal_auc}')
-    # print(f'FGSM Adv Adverserial Anomal: {anomal_auc}')
-    # print(f'FGSM Adv Adverserial Both: {both_auc}\n\n')
+    print(f'FGSM Adv Adverserial Clean: {clear_auc}')
+    print(f'FGSM Adv Adverserial Normal: {normal_auc}')
+    print(f'FGSM Adv Adverserial Anomal: {anomal_auc}')
+    print(f'FGSM Adv Adverserial Both: {both_auc}\n\n')
     
-    # mine_result['Attack_Type'].extend(['fgsm','fgsm','fgsm','fgsm'])
-    # mine_result['Attack_Target'].extend(['clean','normal','anomal','both'])
-    # mine_result['ADV_AUC'].extend([clear_auc,normal_auc,anomal_auc,both_auc])
-    # mine_result['setting'].extend([{'Dataset Name': dataset_name},{'Epsilon': cfg.settings['eps']},{'Alpha': cfg.settings['alpha']},{'Num Epoches': cfg.settings['n_epochs']}])        
+    mine_result['Attack_Type'].extend(['fgsm','fgsm','fgsm','fgsm'])
+    mine_result['Attack_Target'].extend(['clean','normal','anomal','both'])
+    mine_result['ADV_AUC'].extend([clear_auc,normal_auc,anomal_auc,both_auc])
+    mine_result['setting'].extend([{'Dataset Name': dataset_name},{'Epsilon': cfg.settings['eps']},{'Alpha': cfg.settings['alpha']},{'Num Epoches': cfg.settings['n_epochs']}])        
       
 
 
 
 
-    deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='pgd',epsilon=cfg.settings['eps'],alpha=cfg.settings['alpha'])
-    clear_auc=deep_SVDD.results['clear_auc']
-    normal_auc=deep_SVDD.results['normal_auc']
-    anomal_auc=deep_SVDD.results['anomal_auc']
-    both_auc=deep_SVDD.results['both_auc']
+    # deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader,attack_type='pgd',epsilon=cfg.settings['eps'],alpha=cfg.settings['alpha'])
+    # clear_auc=deep_SVDD.results['clear_auc']
+    # normal_auc=deep_SVDD.results['normal_auc']
+    # anomal_auc=deep_SVDD.results['anomal_auc']
+    # both_auc=deep_SVDD.results['both_auc']
 
-    mine_result['Attack_Type'].extend(['PGD','PGD','PGD','PGD'])
-    mine_result['Attack_Target'].extend(['clean','normal','anomal','both'])
-    mine_result['ADV_AUC'].extend([clear_auc,normal_auc,anomal_auc,both_auc])        
-    mine_result['setting'].extend([{'Dataset Name': dataset_name},{'Epsilon': cfg.settings['eps']},{'Alpha': cfg.settings['alpha']},{'Num Epoches': cfg.settings['n_epochs']}])        
+    # mine_result['Attack_Type'].extend(['PGD','PGD','PGD','PGD'])
+    # mine_result['Attack_Target'].extend(['clean','normal','anomal','both'])
+    # mine_result['ADV_AUC'].extend([clear_auc,normal_auc,anomal_auc,both_auc])        
+    # mine_result['setting'].extend([{'Dataset Name': dataset_name},{'Epsilon': cfg.settings['eps']},{'Alpha': cfg.settings['alpha']},{'Num Epoches': cfg.settings['n_epochs']}])        
     
-    print(f'PGD Adv Adverserial Clean: {clear_auc}')
-    print(f'PGD Adv Adverserial Normal: {normal_auc}')
-    print(f'PGD Adv Adverserial Anomal: {anomal_auc}')
-    print(f'PGD Adv Adverserial Both: {both_auc}\n\n')
+    # print(f'PGD Adv Adverserial Clean: {clear_auc}')
+    # print(f'PGD Adv Adverserial Normal: {normal_auc}')
+    # print(f'PGD Adv Adverserial Anomal: {anomal_auc}')
+    # print(f'PGD Adv Adverserial Both: {both_auc}\n\n')
 
     df = pd.DataFrame(mine_result)    
     df.to_csv(os.path.join('./',f'Results_SVDD_{dataset_name}_Class_{normal_class}.csv'), index=False)
