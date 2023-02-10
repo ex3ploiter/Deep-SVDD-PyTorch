@@ -36,7 +36,6 @@ class MNIST_Dataset(TorchvisionDataset):
                                         transforms.Lambda(lambda x: global_contrast_normalization(x, scale='l1')),
                                         transforms.Normalize([self.min_max[normal_class][0]],
                                                              [self.min_max[normal_class][1] - self.min_max[normal_class][0]])])
-        
         # ,])
 
         target_transform = transforms.Lambda(lambda x: int(x in self.outlier_classes))

@@ -67,14 +67,11 @@ class PGD(Attack):
                                        retain_graph=False, create_graph=False)[0]
 
             # adv_images = adv_images.detach() + self.alpha*grad.sign()
+            adv_images= adv_images+self.eps*grad.sign() if labels==0 else adv_images-self.eps*grad.sign()
             
-            adv_images= adv_images+self.alpha*grad.sign() if labels==0 else adv_images-self.alpha*grad.sign()
             
             delta = torch.clamp(adv_images - images, min=-self.eps, max=self.eps)
-            
-            adv_images= adv_images+delta if labels==0 else adv_images-delta
-            
-            adv_images = torch.clamp(adv_images, min=0, max=1).detach()
+            adv_images = torch.clamp(images + delta, min=0, max=1).detach()
 
         return adv_images
     
