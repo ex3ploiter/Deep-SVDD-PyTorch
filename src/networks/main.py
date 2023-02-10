@@ -46,6 +46,6 @@ def build_autoencoder(net_name,normal_obj):
 
     ae_net.normal_obj=normal_obj
     
-    print(f"\n This Obj : {normal_obj}\n")
+    print(f"\n This Obj2 : {normal_obj}\n")
     
     return ae_net
