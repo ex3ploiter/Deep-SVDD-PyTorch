@@ -58,7 +58,7 @@ class MNIST_LeNet_Autoencoder(BaseNet):
         self.deconv3 = nn.ConvTranspose2d(8, 1, 5, bias=False, padding=2)
 
     def forward(self, x):
-        # x=self.normalObj.normalize(x)
+        x=self.normalObj.normalize(x)
         
         x = self.conv1(x)
         x = self.pool(F.leaky_relu(self.bn1(x)))

@@ -25,7 +25,7 @@ class CIFAR10_LeNet(BaseNet):
 
     def forward(self, x):
         
-        # x=self.normalObj.normalize(x)
+        x=self.normalObj.normalize(x)
         
         x = self.conv1(x)
         x = self.pool(F.leaky_relu(self.bn2d1(x)))
@@ -76,7 +76,7 @@ class CIFAR10_LeNet_Autoencoder(BaseNet):
 
     def forward(self, x):
         
-        # x=self.normalObj.normalize(x)
+        x=self.normalObj.normalize(x)
         
         
         x = self.conv1(x)
