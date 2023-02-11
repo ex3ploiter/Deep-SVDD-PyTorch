@@ -18,6 +18,9 @@ def load_dataset(dataset_name, data_path, normal_class):
     if dataset_name == 'cifar10':
         dataset = CIFAR10_Dataset(root=data_path, normal_class=normal_class)
 
+    if dataset_name == 'svhn':
+        dataset = SVHN_Dataset(root=data_path, normal_class=normal_class)
+
     if dataset_name == 'fashionmnist':
         dataset = FashionMNIST_Dataset(root=data_path, normal_class=normal_class)
 
