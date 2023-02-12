@@ -61,7 +61,7 @@ class MVTec_Dataset(TorchvisionDataset):
 class MyMVTec(TorchvisionDataset):
     def __init__(self, root, normal_class, transform=None, target_transform=None, train=True):
         self.transform = transform
-        root=os.path.join(root,'mvtec_anomaly_detection')
+        # root=os.path.join(root,'mvtec_anomaly_detection')
         
         mvtec_labels=['bottle' , 'cable' , 'capsule' , 'carpet' ,'grid' , 'hazelnut', 'leather', 'metal_nut', 'pill', 'screw', 'tile', 'toothbrush', 'transistor', 'wood','zipper']
         category=mvtec_labels[normal_class]
